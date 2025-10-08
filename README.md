@@ -34,8 +34,10 @@ Your daily progress and project work must be documented according to the followi
     │   └── devops_roadmap.md    // Detailed 100-day flow for DevOps
     ├── nestjs/
     │   └── nestjs_roadmap.md    // Detailed 100-day flow for NestJS
-    └── git/
-        └── git_roadmap.md       // Detailed 100-day flow for Git
+    ├── git/
+    │   └── git_roadmap.md       // Detailed 100-day flow for Git
+    └── ai-agents/
+        └── ai-agents_roadmap.md // Detailed 10-day flow for AI Agents
 
 ````
 
