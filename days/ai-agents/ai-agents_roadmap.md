@@ -1,6 +1,6 @@
-# 20-Day AI Agents Roadmap
+# 30-Day AI Agents Roadmap
 
-This roadmap provides a 20-day plan to get started with AI agents.
+This roadmap provides a 30-day plan to get started with AI agents.
 
 *   **Day 1:** Introduction to AI Agents and Autonomous Systems
 *   **Day 2:** Understanding the Agentic Mindset: LLMs, Tools, and Memory
@@ -22,4 +22,14 @@ This roadmap provides a 20-day plan to get started with AI agents.
 *   **Day 18:** Agents for Data Analysis: A SQL-Querying Agent
 *   **Day 19:** Deploying and Monitoring AI Agents
 *   **Day 20:** Project: Build an Advanced Agent (e.g., for Data Analysis or Coding)
+*   **Day 21:** Agent Orchestration and Workflow Management
+*   **Day 22:** Multi-Modal Agents: Vision and Audio
+*   **Day 23:** Agent Security and Privacy
+*   **Day 24:** Cost Optimization for AI Agents
+*   **Day 25:** Agent Testing and Quality Assurance
+*   **Day 26:** Agent Communication Protocols
+*   **Day 27:** Building Domain-Specific Agents
+*   **Day 28:** Agent Performance Optimization
+*   **Day 29:** Open Source Agent Frameworks Deep Dive
+*   **Day 30:** Final Capstone Project: Production-Ready Agent System
 
