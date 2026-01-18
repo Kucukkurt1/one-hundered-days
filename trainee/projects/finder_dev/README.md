@@ -2,10 +2,15 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES2020-F7DF1E?logo=javascript&logoColor=000)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=000)
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=nodedotjs&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?logo=tailwindcss&logoColor=white)
 ![App Router](https://img.shields.io/badge/Router-App%20Router-000000?logo=nextdotjs&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Pre--Alpha-lightgrey)
 ![ESLint](https://img.shields.io/badge/Lint-ESLint-4B32C3?logo=eslint&logoColor=white)
+![PostCSS](https://img.shields.io/badge/PostCSS-8-DD3A0A?logo=postcss&logoColor=white)
+![npm](https://img.shields.io/badge/npm-package%20manager-CB3837?logo=npm&logoColor=white)
 ![Content](https://img.shields.io/badge/Content-JSON%20Layer-0ea5e9)
 ![UI](https://img.shields.io/badge/UI-shadcn%2Fui-111827)
 ![Backend](https://img.shields.io/badge/Backend-Supabase%20(planned)-3ECF8E?logo=supabase&logoColor=white)
@@ -16,6 +21,7 @@ A collaborative social platform designed to bridge the gap between **software de
 
 ## Table of Contents
 
+- [Badge wall (tech matrix)](#badge-wall-tech-matrix)
 - [Overview](#overview)
 - [Current Status](#current-status)
 - [Tech Stack](#tech-stack)
@@ -26,10 +32,39 @@ A collaborative social platform designed to bridge the gap between **software de
 - [Content Layer (JSON)](#content-layer-json)
 - [Where to Edit Content](#where-to-edit-content)
 - [Architecture Notes](#architecture-notes)
+- [Features](#features)
 - [Diagrams (Mermaid)](#diagrams-mermaid)
+- [Planned Supabase (Spec) Notes](#planned-supabase-spec-notes)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap (high level)](#roadmap-high-level)
 - [Documentation](#documentation)
+
+## Badge wall (tech matrix)
+
+- **Current (in this repo today)**
+  - **Languages**
+    - ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+    - ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)
+    - ![JSON](https://img.shields.io/badge/JSON-Content%20Files-111827)
+  - **Runtime / package manager**
+    - ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+    - ![npm](https://img.shields.io/badge/npm-CC3534?logo=npm&logoColor=white)
+  - **Framework / UI**
+    - ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+    - ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=000)
+    - ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwindcss&logoColor=white)
+    - ![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-Components-111827)
+  - **Quality / tooling**
+    - ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)
+    - ![PostCSS](https://img.shields.io/badge/PostCSS-DD3A0A?logo=postcss&logoColor=white)
+
+- **Planned (spec)**
+  - **Backend**
+    - ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
+    - ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+  - **Features**
+    - ![Auth](https://img.shields.io/badge/Auth-111827)
+    - ![Realtime](https://img.shields.io/badge/Realtime-111827)
 
 ## Overview
 
@@ -142,13 +177,45 @@ Core implementation files:
 
 ## Diagrams (Mermaid)
 
+### System map (current vs planned)
+
+```mermaid
+flowchart LR
+  U[User] -->|HTTP| NX[Next.js App Router]
+  NX --> UI[Pages + Components]
+  UI --> CL["Content Layer\nJSON + typed loaders"]
+  CL --> J["JSON files\nsrc/data + src/config"]
+
+  NX -. planned .-> SB[Supabase]
+  SB -. planned .-> PG[(Postgres)]
+  SB -. planned .-> AU[Auth]
+  SB -. planned .-> RT[Realtime]
+  SB -. planned .-> ST[Storage]
+```
+
 ### JSON content loading (current)
 
 ```mermaid
 flowchart TD
-  A[JSON files<br/>src/data + src/config] --> B[content-loader.ts<br/>loadXData()]
-  B --> C[Typed data<br/>types.ts]
-  C --> D[UI / Pages<br/>src/app/*, src/components/*]
+  A["JSON files\nsrc/data + src/config"] --> B["content-loader.ts\nloadXData()"]
+  B --> C["Typed data\ntypes.ts"]
+  C --> D["UI / Pages\nsrc/app/*, src/components/*"]
+```
+
+### Build-time vs runtime (current)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Dev as Developer
+  participant Next as Next.js Build/Dev Server
+  participant JSON as JSON modules (imports)
+  participant Browser as Browser
+
+  Dev->>Next: npm run dev
+  Next->>JSON: Import src/data/*.json + src/config/*.json
+  Browser->>Next: Request /
+  Next-->>Browser: Render app (uses typed loaders)
 ```
 
 ### Splash display flow (current)
@@ -174,6 +241,44 @@ sequenceDiagram
     Provider-->>Browser: Render children directly
   end
 ```
+
+### (Planned / Spec) Database model (high level)
+
+> From `docs/analysis.md` (not implemented yet).
+
+```mermaid
+erDiagram
+  profiles ||--o{ projects : owns
+  projects ||--o{ project_members : has
+  projects ||--o{ project_technologies : uses
+  technologies ||--o{ project_technologies : tagged
+
+  conversations ||--o{ conversation_participants : includes
+  conversations ||--o{ messages : contains
+  profiles ||--o{ messages : sends
+
+  profiles {
+    UUID id PK
+    text username
+  }
+  projects {
+    UUID id PK
+    UUID owner_id FK
+    text title
+  }
+  technologies {
+    bigint id PK
+    text name
+  }
+```
+
+## Planned Supabase (Spec) Notes
+
+When Supabase is added, this README should gain:
+
+- A `.env.example` (with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- Database migrations (SQL) + RLS policies
+- Auth providers (GitHub/Google/email) + profile sync triggers
 
 ## Troubleshooting
 
