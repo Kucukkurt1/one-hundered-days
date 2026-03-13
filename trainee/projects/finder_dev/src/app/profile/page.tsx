@@ -50,7 +50,7 @@ export default async function ProfilePage() {
       (typeof user?.user_metadata?.avatar_url === "string"
         ? user.user_metadata.avatar_url
         : null),
-    about: profileRow?.about || profileRow?.bio || "Henüz hakkında bilgisi eklenmedi.",
+    about: profileRow?.about || profileRow?.bio || "No about information has been added yet.",
     github_url: profileRow?.github_url || "https://github.com",
     linkedin_url: profileRow?.linkedin_url || "https://linkedin.com",
   };
@@ -98,7 +98,7 @@ export default async function ProfilePage() {
                       </div>
                       <button
                         className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full bg-blue-600 hover:bg-blue-500 flex items-center justify-center shadow-lg border-2 border-slate-900 transition-all duration-200 hover:scale-110"
-                        title="Avatar Değiştir"
+                        title="Change Avatar"
                         type="button"
                       >
                         <Camera className="h-5 w-5 text-white" />
@@ -140,14 +140,14 @@ export default async function ProfilePage() {
                     <Link href="/settings" className="mt-4">
                       <Button variant="outline" className="border-slate-700 hover:bg-slate-800">
                         <Edit className="h-4 w-4 mr-2" />
-                        Profili Düzenle
+                        Edit Profile
                       </Button>
                     </Link>
                   </div>
 
                   {profile.about && (
                     <div className="mb-8">
-                      <h3 className="text-lg font-semibold text-white mb-3">Hakkında</h3>
+                      <h3 className="text-lg font-semibold text-white mb-3">About</h3>
                       <p className="text-slate-300 leading-relaxed">{profile.about}</p>
                     </div>
                   )}
@@ -155,15 +155,15 @@ export default async function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-slate-800/50">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-400">-</p>
-                      <p className="text-sm text-slate-400 mt-1">Projeler</p>
+                      <p className="text-sm text-slate-400 mt-1">Projects</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-purple-400">-</p>
-                      <p className="text-sm text-slate-400 mt-1">İşbirlikleri</p>
+                      <p className="text-sm text-slate-400 mt-1">Collaborations</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-400">-</p>
-                      <p className="text-sm text-slate-400 mt-1">Başarılar</p>
+                      <p className="text-sm text-slate-400 mt-1">Achievements</p>
                     </div>
                   </div>
                 </div>

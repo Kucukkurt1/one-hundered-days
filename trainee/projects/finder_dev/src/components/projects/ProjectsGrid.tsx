@@ -50,7 +50,16 @@ const itemVariants: any = {
 
 // ... imports
 
-type StatusFilter = "all" | "idea" | "planning" | "in_progress" | "completed";
+type StatusFilter =
+  | "all"
+  | "idea"
+  | "in development"
+  | "MVP Ready"
+  | "Recruiting"
+  | "Refactoring"
+  | "planning"
+  | "in_progress"
+  | "completed";
 
 interface ProjectsGridProps {
   searchQuery?: string;
@@ -99,7 +108,7 @@ export function ProjectsGrid({
     async function load() {
       setLoading(true);
       setError(null);
-      setSuggestedProjects([]); // Önerileri temizle
+      setSuggestedProjects([]);
       
       const isSearching = searchQuery && searchQuery.trim();
       if (isSearching) {
@@ -111,34 +120,31 @@ export function ProjectsGrid({
       try {
         const query: Record<string, string> = {};
         
-        // Arama terimi varsa ekle, yoksa en güncel projeleri çek
+        // Add search query if present, otherwise fetch recent projects.
         if (isSearching) {
           query.search = searchQuery.trim();
-          // Arama yapıldığında ilk 9 sonucu göster
           query.limit = "9";
         } else {
-          // Initial load: En güncel 9 projeyi çek (3x3 grid için)
           query.limit = "9";
         }
 
-        // Status filtresi ekle
+        // Add status filter
         if (statusFilter && statusFilter !== "all") {
           query.status = statusFilter;
         }
 
-        // Tech stack filtresi ekle (array contains)
+        // Add tech stack filter
         if (selectedTech && selectedTech.length > 0) {
           query.techStack = selectedTech.join(",");
         }
 
-        // Role filtresi ekle (array contains)
+        // Add role filter
         if (selectedRole && selectedRole.length > 0) {
           query.requiredRoles = selectedRole.join(",");
         }
 
         console.log("ProjectsGrid: Fetching projects with query:", query);
 
-        // Server action'ı doğrudan çağırıyoruz (API route yerine)
         const result = await getProjects(query);
 
         console.log("ProjectsGrid: getProjects result:", {
@@ -148,16 +154,14 @@ export function ProjectsGrid({
         });
 
         if (!result.success) {
-          throw new Error("Projeler yüklenirken bir hata oluştu.");
+          throw new Error("An error occurred while loading projects.");
         }
 
         if (!cancelled) {
-          // getProjects'ten dönen veriyi doğru şekilde map et
           const projectsData = (result.data || []) as ApiProject[];
           console.log("ProjectsGrid: Setting projects, count:", projectsData.length);
           setProjects(projectsData);
 
-          // Eğer arama yapıldı ve sonuç bulunamadıysa, önerilen projeleri çek
           if (isSearching && projectsData.length === 0) {
             await loadSuggestedProjects();
           }
@@ -166,7 +170,7 @@ export function ProjectsGrid({
         console.error("ProjectsGrid: Error loading projects:", err);
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Projeler yüklenemedi."
+            err instanceof Error ? err.message : "Projects could not be loaded."
           );
         }
       } finally {
@@ -176,8 +180,7 @@ export function ProjectsGrid({
       }
     }
 
-    // Initial load için hemen çalıştır, arama için debounce
-    // Filtreler için anında güncelleme (debounce yok)
+    // Run immediately for initial load and filters, debounce search input.
     const hasFilters = statusFilter !== "all" || selectedTech.length > 0 || selectedRole.length > 0;
     const timeoutId = setTimeout(load, searchQuery && !hasFilters ? 300 : 0);
 
@@ -187,7 +190,6 @@ export function ProjectsGrid({
     };
   }, [searchQuery, statusFilter, selectedTech, selectedRole]);
 
-  // Debug: Render sırasında state'i kontrol et
   console.log("ProjectsGrid render:", {
     loading,
     projectsCount: projects.length,
@@ -199,14 +201,14 @@ export function ProjectsGrid({
     <div>
       {loading && (
         <div className="text-center py-20">
-          <p className="text-muted-foreground text-lg">Projeler yükleniyor...</p>
+          <p className="text-muted-foreground text-lg">Loading projects...</p>
         </div>
       )}
 
       {error && (
         <div className="text-center py-20">
-          <p className="text-red-500 text-lg mb-2">Hata: {error}</p>
-          <p className="text-muted-foreground text-sm">Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.</p>
+          <p className="text-red-500 text-lg mb-2">Error: {error}</p>
+          <p className="text-muted-foreground text-sm">Please refresh the page or try again later.</p>
         </div>
       )}
 
@@ -216,10 +218,10 @@ export function ProjectsGrid({
             <>
               <div className="text-center mb-12">
                 <p className="text-muted-foreground text-lg mb-2">
-                  Aradığınız kriterlere uygun proje bulunamadı.
+                  No projects match your current criteria.
                 </p>
                 <p className="text-muted-foreground text-base mb-4">
-                  Bunlara göz atmak ister misiniz?
+                  Want to check these suggestions instead?
                 </p>
                 {onClearFilters && (
                   <Button
@@ -227,21 +229,20 @@ export function ProjectsGrid({
                     variant="outline"
                     className="mt-4 rounded-full px-6 py-2 border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 hover:text-purple-300 transition-all duration-300 ease-out"
                   >
-                    Filtreleri Temizle
+                    Clear Filters
                   </Button>
                 )}
               </div>
 
-              {/* Önerilen Projeler */}
               {loadingSuggestions ? (
                 <div className="text-center">
-                  <p className="text-muted-foreground text-sm">Önerilen projeler yükleniyor...</p>
+                  <p className="text-muted-foreground text-sm">Loading suggested projects...</p>
                 </div>
               ) : suggestedProjects.length > 0 ? (
                 <div>
-                  <h3 className="text-2xl font-bold mb-6 text-left">Önerilen Projeler</h3>
+                  <h3 className="text-2xl font-bold mb-6 text-left">Suggested Projects</h3>
                   <p className="text-muted-foreground text-sm mb-8 text-left">
-                    En güncel projelerden seçtiklerimiz
+                    Handpicked from the latest projects
                   </p>
                   <motion.div
                     className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
@@ -268,7 +269,7 @@ export function ProjectsGrid({
                           <ProjectCard
                             id={project.id}
                             title={project.title}
-                            description={project.description ?? "Açıklama bulunmuyor."}
+                            description={project.description ?? "No description provided."}
                             status={project.status || "planning"}
                             techStack={techStack}
                             owner={{
@@ -285,21 +286,21 @@ export function ProjectsGrid({
               ) : (
                 <div className="text-center">
                   <p className="text-muted-foreground text-sm mt-4">
-                    Şu anda önerilebilecek proje bulunmuyor.
+                    There are no suggested projects right now.
                   </p>
                 </div>
               )}
             </>
           ) : (
             <div className="text-center">
-              <p className="text-muted-foreground text-lg mb-4">Henüz proje bulunamadı.</p>
+              <p className="text-muted-foreground text-lg mb-4">No projects found yet.</p>
               {onClearFilters && (statusFilter !== "all" || selectedTech.length > 0 || selectedRole.length > 0) && (
                 <Button
                   onClick={onClearFilters}
                   variant="outline"
                   className="rounded-full px-6 py-2 border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-purple-500/30 hover:text-purple-300 transition-all duration-300 ease-out"
                 >
-                  Filtreleri Temizle
+                  Clear Filters
                 </Button>
               )}
             </div>
@@ -315,13 +316,11 @@ export function ProjectsGrid({
           animate="visible"
         >
           {projects.map((project) => {
-            // Owner bilgisini güvenli şekilde al
             const ownerName = project.owner?.full_name || 
                              project.owner?.username || 
                              "Unknown Owner";
             const ownerAvatar = project.owner?.avatar_url || undefined;
 
-            // Tech stack ve looking_for verilerini güvenli şekilde al
             const techStack = Array.isArray(project.tech_stack) 
               ? project.tech_stack.filter(Boolean) 
               : [];
@@ -329,7 +328,6 @@ export function ProjectsGrid({
               ? project.looking_for.filter(Boolean) 
               : [];
 
-            // Debug: looking_for verisini kontrol et
             if (lookingFor.length > 0) {
               console.log(`[ProjectsGrid] Project ${project.id} looking_for:`, lookingFor);
             }
@@ -339,7 +337,7 @@ export function ProjectsGrid({
                 <ProjectCard
                   id={project.id}
                   title={project.title}
-                  description={project.description ?? "Açıklama bulunmuyor."}
+                  description={project.description ?? "No description provided."}
                   status={project.status || "planning"}
                   techStack={techStack}
                   owner={{

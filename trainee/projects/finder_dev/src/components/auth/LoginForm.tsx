@@ -26,13 +26,13 @@ export function LoginForm() {
         try {
             // Input validation
             if (!email || !email.trim()) {
-                setError("Lütfen e-posta adresinizi girin.");
+                setError("Please enter your email address.");
                 setIsLoading(false);
                 return;
             }
 
             if (!password || !password.trim()) {
-                setError("Lütfen şifrenizi girin.");
+                setError("Please enter your password.");
                 setIsLoading(false);
                 return;
             }
@@ -43,7 +43,7 @@ export function LoginForm() {
             });
 
             if (!result.success) {
-                setError(result.error || "Giriş yapılırken bir sorun oluştu.");
+                setError(result.error || "An issue occurred while signing in.");
                 setIsLoading(false);
                 return;
             }
@@ -52,7 +52,7 @@ export function LoginForm() {
             router.refresh();
         } catch (err: any) {
             console.error("Login error:", err);
-            setError("Giriş yapılırken beklenmeyen bir sorun oluştu.");
+            setError("An unexpected issue occurred while signing in.");
         }
         setIsLoading(false);
     };
@@ -69,16 +69,16 @@ export function LoginForm() {
             if (error) throw error;
         } catch (err: any) {
             console.error("Github login error:", err);
-            setError("GitHub ile giriş yapılırken bir sorun oluştu.");
+            setError("An issue occurred while signing in with GitHub.");
         }
     };
 
     return (
         <Reveal>
-            <div className="w-full max-w-md mx-auto relative px-4">
+            <div className="w-full mx-auto relative px-4" style={{ width: "680px", maxWidth: "95vw" }}>
                 <Link href="/" className="absolute -top-12 left-4 text-slate-500 hover:text-white flex items-center gap-2 transition-colors group">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-                    <span>Geri Dön</span>
+                    <span>Go Back</span>
                 </Link>
 
                 <GradientBorder animate borderWidth={1}>
@@ -126,8 +126,8 @@ export function LoginForm() {
                             </motion.div>
 
                             <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Hoş Geldiniz</h1>
-                                <p className="text-slate-400 text-sm">Fikirlerinizi gerçeğe dönüştürmek için giriş yapın</p>
+                                <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome Back</h1>
+                                <p className="text-slate-400 text-sm">Sign in to bring your ideas to life</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="w-full space-y-5">
@@ -142,12 +142,12 @@ export function LoginForm() {
                                 )}
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">E-posta Adresi</label>
+                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
                                     <div className="relative group">
                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <Input
                                             type="email"
-                                            placeholder="adiniz@ornek.com"
+                                            placeholder="yourname@example.com"
                                             className="pl-10 bg-slate-950/50 border-slate-800 text-slate-200 focus:border-blue-500/50 focus:ring-blue-500/10 h-11"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -158,9 +158,9 @@ export function LoginForm() {
 
                                 <div className="space-y-1.5">
                                     <div className="flex justify-between items-end mr-1">
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Şifre</label>
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Password</label>
                                         <Link href="#" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors font-medium">
-                                            Şifremi Unuttum?
+                                            Forgot Password?
                                         </Link>
                                     </div>
                                     <div className="relative group">
@@ -189,7 +189,7 @@ export function LoginForm() {
                                                 <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                                             </div>
                                         ) : (
-                                            "Devam Et"
+                                            "Continue"
                                         )}
                                     </Button>
 
@@ -198,7 +198,7 @@ export function LoginForm() {
                                             <span className="w-full border-t border-slate-800" />
                                         </div>
                                         <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
-                                            <span className="bg-[#0f172a] px-3 text-slate-500">Veya sosyal hesapla</span>
+                                            <span className="bg-[#0f172a] px-3 text-slate-500">Or continue with social login</span>
                                         </div>
                                     </div>
 
@@ -209,15 +209,15 @@ export function LoginForm() {
                                         onClick={handleGithubLogin}
                                     >
                                         <Github className="mr-2 h-4 w-4" />
-                                        GitHub ile Giriş Yap
+                                        Continue with GitHub
                                     </Button>
                                 </div>
                             </form>
 
                             <div className="mt-8 text-center text-sm text-slate-500">
-                                Hesabınız yok mu?{" "}
+                                Don't have an account?{" "}
                                 <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium hover:underline decoration-blue-500/30 underline-offset-4 transition-colors">
-                                    Hemen Kayıt Olun
+                                    Sign up now
                                 </Link>
                             </div>
                         </div>

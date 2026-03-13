@@ -7,27 +7,27 @@ import { subscribeNewsletter } from "@/app/actions/newsletter";
 
 const footerLinks = {
     platform: [
-        { label: "Projeler", href: "/projects" },
-        { label: "Geliştiriciler", href: "/developers" },
-        { label: "Proje Oluştur", href: "/projects/create" },
-        { label: "Nasıl Çalışır", href: "/how-it-works" },
+        { label: "Projects", href: "/projects" },
+        { label: "Developers", href: "/developers" },
+        { label: "Create Project", href: "/projects/create" },
+        { label: "How It Works", href: "/how-it-works" },
     ],
     resources: [
-        { label: "Dokümantasyon", href: "/docs" },
+        { label: "Documentation", href: "/docs" },
         { label: "API", href: "/api" },
         { label: "Blog", href: "/blog" },
-        { label: "SSS", href: "/faq" },
+        { label: "FAQ", href: "/faq" },
     ],
     company: [
-        { label: "Hakkımızda", href: "/about" },
-        { label: "Kariyer", href: "/careers" },
-        { label: "İletişim", href: "/contact" },
-        { label: "Basın", href: "/press" },
+        { label: "About Us", href: "/about" },
+        { label: "Careers", href: "/careers" },
+        { label: "Contact", href: "/contact" },
+        { label: "Press", href: "/press" },
     ],
     legal: [
-        { label: "Gizlilik Politikası", href: "/privacy" },
-        { label: "Kullanım Şartları", href: "/terms" },
-        { label: "Çerez Politikası", href: "/cookies" },
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms of Use", href: "/terms" },
+        { label: "Cookie Policy", href: "/cookies" },
     ],
 };
 
@@ -48,7 +48,7 @@ export function Footer() {
         e.preventDefault();
         
         if (!email.trim()) {
-            setMessage({ type: "error", text: "Lütfen bir e-posta adresi giriniz." });
+            setMessage({ type: "error", text: "Please enter an email address." });
             return;
         }
 
@@ -60,14 +60,14 @@ export function Footer() {
             if (result.success) {
                 setMessage({ 
                     type: "success", 
-                    text: result.message || "Newsletter'e başarıyla abone oldunuz!" 
+                    text: result.message || "You have successfully subscribed to the newsletter!" 
                 });
-                setEmail(""); // Formu temizle
+                setEmail(""); // Clear the form
             }
         } catch (error) {
             setMessage({ 
                 type: "error", 
-                text: error instanceof Error ? error.message : "Bir hata oluştu. Lütfen tekrar deneyin." 
+                text: error instanceof Error ? error.message : "An error occurred. Please try again." 
             });
         } finally {
             setLoading(false);
@@ -98,7 +98,7 @@ export function Footer() {
                             </Link>
                         </motion.div>
                         <p className="text-white/50 text-sm mb-4">
-                            Geliştiricileri bir araya getiren, fikirleri hayata geçiren platform.
+                            A platform that brings developers together and turns ideas into reality.
                         </p>
                         {/* Social Links */}
                         <div className="flex gap-2">
@@ -137,7 +137,7 @@ export function Footer() {
 
                     {/* Resources Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Kaynaklar</h4>
+                        <h4 className="text-white font-semibold mb-4">Resources</h4>
                         <ul className="space-y-2">
                             {footerLinks.resources.map((link) => (
                                 <li key={link.label}>
@@ -154,7 +154,7 @@ export function Footer() {
 
                     {/* Company Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Şirket</h4>
+                        <h4 className="text-white font-semibold mb-4">Company</h4>
                         <ul className="space-y-2">
                             {footerLinks.company.map((link) => (
                                 <li key={link.label}>
@@ -171,7 +171,7 @@ export function Footer() {
 
                     {/* Legal Links */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4">Yasal</h4>
+                        <h4 className="text-white font-semibold mb-4">Legal</h4>
                         <ul className="space-y-2">
                             {footerLinks.legal.map((link) => (
                                 <li key={link.label}>
@@ -196,13 +196,13 @@ export function Footer() {
                 >
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div>
-                            <h4 className="text-white font-semibold text-lg">Güncel Kal</h4>
-                            <p className="text-white/50 text-sm">En yeni projeler ve fırsatlar için bültenimize abone ol.</p>
+                            <h4 className="text-white font-semibold text-lg">Stay Updated</h4>
+                            <p className="text-white/50 text-sm">Subscribe to our newsletter for the latest projects and opportunities.</p>
                         </div>
                         <form onSubmit={handleNewsletterSubmit} className="flex w-full md:w-auto gap-2 flex-col md:flex-row">
                             <input
                                 type="email"
-                                placeholder="E-posta adresin"
+                                placeholder="Your email address"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={loading}
@@ -215,7 +215,7 @@ export function Footer() {
                                 whileTap={{ scale: loading ? 1 : 0.95 }}
                                 className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Gönderiliyor..." : "Abone Ol"}
+                                {loading ? "Sending..." : "Subscribe"}
                             </motion.button>
                         </form>
                         {message && (
@@ -237,7 +237,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-800">
                     <p className="text-white/40 text-sm">
-                        © 2026 FinderDev. Tüm hakları saklıdır.
+                        © 2026 FinderDev. All rights reserved.
                     </p>
                     <div className="flex items-center gap-2 text-white/40 text-sm">
                         <span>Made with</span>

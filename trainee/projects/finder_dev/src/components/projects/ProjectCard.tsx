@@ -30,7 +30,12 @@ function getStatusBadgeStyles(status: string): { base: string; hover: string } {
         base: "bg-blue-900/30 text-blue-400 border-blue-500/20",
         hover: "hover:bg-blue-900/50 hover:border-blue-500/40 hover:text-blue-300"
       };
-    case "planning":
+    case "in development":
+      return {
+        base: "bg-purple-900/30 text-purple-400 border-purple-500/20",
+        hover: "hover:bg-purple-900/50 hover:border-purple-500/40 hover:text-purple-300"
+      };
+    case "mvp ready":
       return {
         base: "bg-purple-900/30 text-purple-400 border-purple-500/20",
         hover: "hover:bg-purple-900/50 hover:border-purple-500/40 hover:text-purple-300"
@@ -40,7 +45,7 @@ function getStatusBadgeStyles(status: string): { base: string; hover: string } {
         base: "bg-orange-900/30 text-orange-400 border-orange-500/20",
         hover: "hover:bg-orange-900/50 hover:border-orange-500/40 hover:text-orange-300"
       };
-    case "in_progress":
+    case "refactoring":
       return {
         base: "bg-yellow-900/30 text-yellow-500 border-yellow-500/20",
         hover: "hover:bg-yellow-900/50 hover:border-yellow-500/40 hover:text-yellow-400"
@@ -141,20 +146,20 @@ export function ProjectCard({
               {requiredRoles && requiredRoles.length > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-500 font-medium mb-2">
-                    Role
+                    Required Roles
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {requiredRoles.slice(0, 6).map((role) => (
                       <Badge 
                         key={role} 
                         variant="secondary" 
-                        className="text-xs bg-purple-500/10 text-purple-400 border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+                        className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/40 hover:from-purple-500/30 hover:to-pink-500/30 transition-colors"
                       >
                         {role.replace(/_/g, " ")}
                       </Badge>
                     ))}
                     {requiredRoles.length > 6 && (
-                      <Badge variant="secondary" className="text-xs bg-purple-500/10 text-purple-400 border-purple-500/30">
+                      <Badge variant="secondary" className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/40">
                         +{requiredRoles.length - 6}
                       </Badge>
                     )}

@@ -7,18 +7,18 @@ const testimonials = [
     {
         id: 1,
         name: "Can Özkan",
-        role: "Startup Kurucusu",
+        role: "Startup Founder",
         avatar: "🧑‍💼",
-        text: "FinderDev sayesinde ekibimize harika bir frontend developer bulduk. Platform çok kullanışlı ve geliştiriciler gerçekten yetenekli!",
+        text: "Thanks to FinderDev, we found an amazing frontend developer for our team. The platform is very easy to use, and the developers are truly talented!",
         rating: 5,
         color: "from-blue-500 to-cyan-500",
     },
     {
         id: 2,
         name: "Selin Yıldız",
-        role: "Proje Yöneticisi",
+        role: "Project Manager",
         avatar: "👩‍💼",
-        text: "İnanılmaz bir deneyimdi. 3 gün içinde projemize uygun 5 geliştirici buldum. Kesinlikle tavsiye ederim.",
+        text: "It was an incredible experience. I found 5 developers suitable for our project in just 3 days. I definitely recommend it.",
         rating: 5,
         color: "from-purple-500 to-pink-500",
     },
@@ -27,7 +27,7 @@ const testimonials = [
         name: "Burak Aydın",
         role: "Full Stack Developer",
         avatar: "👨‍💻",
-        text: "Freelancer olarak birçok harika projeye katıldım. Müşterilerle iletişim çok kolay ve ödemeler güvenli.",
+        text: "As a freelancer, I joined many great projects. Communication with clients is very easy, and payments are secure.",
         rating: 5,
         color: "from-green-500 to-emerald-500",
     },
@@ -121,13 +121,13 @@ export function Testimonials() {
                             className="px-5 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-mono inline-block mb-6"
                             whileHover={{ scale: 1.05 }}
                         >
-                            💬 Kullanıcı Yorumları
+                            💬 User Testimonials
                         </motion.span>
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            <NeonText color="green">Topluluğumuz Ne Diyor?</NeonText>
+                            <NeonText color="green">What Does Our Community Say?</NeonText>
                         </h2>
                         <p className="text-white/60 max-w-2xl mx-auto text-lg">
-                            FinderDev kullanıcılarının deneyimleri ve başarı hikayeleri.
+                            Experiences and success stories from FinderDev users.
                         </p>
                     </motion.div>
                 </Reveal>

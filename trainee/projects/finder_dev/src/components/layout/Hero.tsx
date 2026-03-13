@@ -191,8 +191,8 @@ export function Hero() {
             className="max-w-[700px] text-lg md:text-xl text-white/60 mt-8 leading-relaxed select-none"
             variants={itemVariants}
           >
-            Yetenekli geliştiricileri keşfet, heyecan verici projeleri incele ve
-            fikirlerini hayata geçirmek için <span className="text-blue-400">işbirliği</span> yap.
+            Discover talented developers, explore exciting projects, and
+            <span className="text-blue-400"> collaborate</span> to bring your ideas to life.
           </motion.p>
         </Reveal>
 
@@ -211,7 +211,7 @@ export function Hero() {
                 <Link href="/projects/create">
                   <span className="relative z-10 flex items-center gap-2">
                     <span>🚀</span>
-                    Proje Başlat
+                    Start a Project
                   </span>
                 </Link>
               </Button>
@@ -222,7 +222,7 @@ export function Hero() {
                 <Link href="/projects">
                   <span className="flex items-center gap-2">
                     <span>👀</span>
-                    Projeleri İncele
+                    Explore Projects
                   </span>
                 </Link>
               </Button>

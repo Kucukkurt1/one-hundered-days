@@ -7,7 +7,11 @@ import {
   type UpdateProjectInput,
 } from "@/lib/validations/projects";
 import { AppError, ErrorMessages, HttpStatus } from "@/lib/utils/errors";
-import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
+import {
+  supabaseServer,
+  supabaseAdmin,
+  createSupabaseServerClient,
+} from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 // Define types for the raw Supabase response to fix "never" type errors
@@ -36,12 +40,49 @@ interface FeaturedProjectResponse {
   title: string;
   description: string | null;
   status: string;
-  repo_url: string | null;
-  demo_url: string | null;
+  github_url: string | null;
+  live_url: string | null;
   created_at: string;
   owner: ProjectOwner;
   project_technologies: ProjectTechnology[];
   project_members: ProjectMember[];
+}
+
+function normalizeTextArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (typeof value !== "string") return [];
+
+  const raw = value.trim();
+  if (!raw) return [];
+
+  // JSON array string case: ["Full Stack Developer"]
+  if (raw.startsWith("[") && raw.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      // continue to other parsers
+    }
+  }
+
+  // Postgres text[] can sometimes appear as "{React,Node.js}".
+  if (raw.startsWith("{") && raw.endsWith("}")) {
+    return raw
+      .slice(1, -1)
+      .split(",")
+      .map((item) => item.replace(/^"|"$/g, "").trim())
+      .filter(Boolean);
+  }
+
+  // Fallback for comma-separated plain strings.
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -101,15 +142,15 @@ export async function getFeaturedProjects(limit: number = 4) {
       return {
         id: project.id,
         title: project.title,
-        description: project.description || "Proje açıklaması bulunmuyor.",
+        description: project.description || "No project description available.",
         tags: techNames,
         members: acceptedMembers + 1, // +1 for owner
         progress: project.status === "completed" ? 100 : project.status === "in_progress" ? 60 : 20,
         image: icons[index % icons.length],
         color: colors[index % colors.length],
         status: project.status,
-        repoUrl: project.repo_url,
-        demoUrl: project.demo_url,
+        repoUrl: project.github_url,
+        demoUrl: project.live_url,
         owner: project.owner,
       };
     });
@@ -126,46 +167,68 @@ export async function getFeaturedProjects(limit: number = 4) {
  */
 export async function createProject(input: CreateProjectInput) {
   try {
+    const rawInput = input as unknown as Record<string, unknown>;
     const validatedData = createProjectSchema.parse(input);
 
-    // Admin client kullan (RLS'yi bypass eder)
-    const client = supabaseAdmin || supabaseServer;
+    const authClient = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await authClient.auth.getUser();
 
-    // Önce profiles tablosunda bir kayıt var mı kontrol et
-    const { data: existingProfiles, error: profileError } = await client
-      .from("profiles")
-      .select("id")
-      .limit(1)
-      .single();
-
-    if (profileError) {
-      console.error("Profile query error:", profileError);
-    }
-
-    // @ts-ignore
-    if (!existingProfiles?.id) {
+    if (authError || !user) {
       throw new AppError(
-        "Henüz kayıtlı kullanıcı yok. Lütfen önce Supabase Authentication ile bir kullanıcı oluşturun ve profiles tablosuna ekleyin. (RLS politikalarını kontrol edin)",
-        HttpStatus.BAD_REQUEST
+        "You must be signed in to perform this action.",
+        HttpStatus.UNAUTHORIZED
       );
     }
 
-    // @ts-ignore
-    const ownerId = existingProfiles.id;
+    // Regular client kullan (RLS politikaları authenticated kullanıcıya göre çalışsın)
+    const client = supabaseServer;
+
+    const techStackFromCsv =
+      typeof rawInput.techStackText === "string"
+        ? rawInput.techStackText
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+    const techStackFromObjects = (validatedData.techStack || [])
+      .map((item) => item.name?.trim())
+      .filter(Boolean) as string[];
+    const techStackArray = (techStackFromCsv.length > 0 ? techStackFromCsv : techStackFromObjects)
+      .filter(Boolean);
+
+    const rawLookingFor = Array.isArray(rawInput.lookingFor)
+      ? rawInput.lookingFor
+          .map((role) => String(role).trim())
+          .filter(Boolean)
+      : [];
+    const validatedLookingFor = (validatedData.requiredRoles || [])
+      .map((role) => String(role.role || "").replace(/_/g, " ").trim())
+      .filter(Boolean);
+    const lookingForArray =
+      rawLookingFor.length > 0 ? rawLookingFor : validatedLookingFor;
+
+    const projectData = {
+      title: validatedData.title,
+      description: validatedData.description,
+      status: validatedData.status,
+      owner_id: user.id,
+      tech_stack: techStackArray.length > 0 ? techStackArray : ["Other"],
+      looking_for: lookingForArray.length > 0 ? lookingForArray : ["other"],
+      github_url: validatedData.githubUrl || null,
+      live_url: validatedData.liveUrl || null,
+    };
+
+    console.log("Gönderilen Veri:", projectData);
 
     // Şu anki Supabase şemasında tech_stack / required_roles kolonları yok,
     // bu yüzden sadece var olan kolonlara insert atıyoruz.
     const { data, error } = await client
       .from("projects")
       // @ts-ignore - Supabase type inference issue
-      .insert({
-        title: validatedData.title,
-        description: validatedData.description,
-        status: validatedData.status,
-        owner_id: ownerId,
-        repo_url: validatedData.githubUrl || null,
-        demo_url: validatedData.liveUrl || null,
-      } as any)
+      .insert(projectData as any)
       .select()
       .single();
 
@@ -299,11 +362,48 @@ export async function deleteProject(projectId: string) {
  */
 export async function getProjectById(projectId: string) {
   try {
-    const { data, error } = await supabaseServer
+    const client = await createSupabaseServerClient();
+    let { data, error } = await client
       .from("projects")
-      .select("*")
+      .select(`
+        *,
+        owner:profiles!projects_owner_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url
+        )
+      `)
       .eq("id", projectId)
       .single();
+
+    // Fallback if FK relation cache is stale.
+    if (error?.code === "PGRST200") {
+      const base = await client
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (base.error) {
+        error = base.error;
+      } else {
+        let owner = null;
+        if (base.data?.owner_id) {
+          const ownerResult = await client
+            .from("profiles")
+            .select("id, username, full_name, avatar_url")
+            .eq("id", base.data.owner_id)
+            .maybeSingle();
+          owner = ownerResult.data || null;
+        }
+        data = {
+          ...base.data,
+          owner,
+        } as any;
+        error = null as any;
+      }
+    }
 
     if (error) {
       if (error.code === "PGRST116") {
@@ -315,7 +415,13 @@ export async function getProjectById(projectId: string) {
       );
     }
 
-    return { success: true, data };
+    const normalizedData = {
+      ...(data as Record<string, unknown>),
+      tech_stack: normalizeTextArray((data as any)?.tech_stack),
+      looking_for: normalizeTextArray((data as any)?.looking_for),
+    };
+
+    return { success: true, data: normalizedData };
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
@@ -335,8 +441,8 @@ export async function getProjects(query: Record<string, string | undefined>) {
     const limit = parseInt(query.limit || "20", 10);
     const offset = parseInt(query.offset || "0", 10);
 
-    // Use service role for public data or ensure RLS allows
-    const client = supabaseAdmin || supabaseServer;
+    // Use SSR client so authenticated user's session is forwarded to RLS.
+    const client = await createSupabaseServerClient();
     
     // Tüm projeleri çek - filtreleme frontend'de yapılacak
     let queryBuilder = client
@@ -366,7 +472,50 @@ export async function getProjects(query: Record<string, string | undefined>) {
     // Order by created_at descending (en güncel önce)
     queryBuilder = queryBuilder.order("created_at", { ascending: false });
 
-    const { data, error, count } = await queryBuilder;
+    let { data, error, count } = await queryBuilder;
+
+    // Fallback: If FK relation is not yet visible in schema cache, query manually and merge.
+    if (error?.code === "PGRST200") {
+      console.warn("[getProjects] FK relation cache miss. Falling back to manual owner merge.");
+
+      const baseResult = await client
+        .from("projects")
+        .select("*", { count: "exact" })
+        .limit(1000)
+        .order("created_at", { ascending: false });
+
+      if (baseResult.error) {
+        throw new AppError(
+          `Failed to fetch projects: ${baseResult.error.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      const ownerIds = Array.from(
+        new Set((baseResult.data || []).map((p: any) => p.owner_id).filter(Boolean))
+      );
+
+      const profilesById = new Map<string, any>();
+      if (ownerIds.length > 0) {
+        const profilesResult = await client
+          .from("profiles")
+          .select("id, username, full_name, avatar_url")
+          .in("id", ownerIds);
+
+        if (!profilesResult.error) {
+          (profilesResult.data || []).forEach((profile: any) =>
+            profilesById.set(profile.id, profile)
+          );
+        }
+      }
+
+      data = (baseResult.data || []).map((project: any) => ({
+        ...project,
+        owner: project.owner_id ? profilesById.get(project.owner_id) || null : null,
+      }));
+      error = null;
+      count = baseResult.count;
+    }
 
     if (error) {
       console.error("[getProjects] Supabase error:", error);
@@ -427,15 +576,20 @@ export async function getProjects(query: Record<string, string | undefined>) {
         description: project.description,
         status: project.status,
         owner_id: project.owner_id,
-        repo_url: project.repo_url,
-        demo_url: project.demo_url,
+        github_url: project.github_url || null,
+        live_url: project.live_url || null,
+        // Backward-compat aliases for existing UI.
+        repo_url: project.github_url || null,
+        demo_url: project.live_url || null,
         created_at: project.created_at,
         updated_at: project.updated_at,
-        tech_stack: project.tech_stack || [], // Array kolonu
-        looking_for: project.looking_for || [], // Array kolonu (eğer varsa)
+        tech_stack: normalizeTextArray(project.tech_stack),
+        looking_for: normalizeTextArray(project.looking_for),
         owner: project.owner || null, // Join ile gelen owner bilgisi
       };
     });
+
+    console.log("[getProjects] Join check owner sample:", normalizedData[0]?.owner ?? null);
 
     return {
       success: true,
@@ -522,12 +676,14 @@ export async function getSuggestedProjects(limit: number = 9) {
         description: project.description,
         status: project.status,
         owner_id: project.owner_id,
-        repo_url: project.repo_url,
-        demo_url: project.demo_url,
+        github_url: project.github_url || null,
+        live_url: project.live_url || null,
+        repo_url: project.github_url || null,
+        demo_url: project.live_url || null,
         created_at: project.created_at,
         updated_at: project.updated_at,
-        tech_stack: project.tech_stack || [], // Array kolonu
-        looking_for: project.looking_for || [], // Array kolonu (eğer varsa)
+        tech_stack: normalizeTextArray(project.tech_stack),
+        looking_for: normalizeTextArray(project.looking_for),
         owner: project.owner || null,
       };
     });

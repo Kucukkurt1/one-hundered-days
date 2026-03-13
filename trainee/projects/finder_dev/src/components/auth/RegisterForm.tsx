@@ -29,25 +29,25 @@ export function RegisterForm() {
         try {
             // Input validation
             if (!name || !name.trim()) {
-                setError("Lütfen adınızı girin.");
+                setError("Please enter your name.");
                 setIsLoading(false);
                 return;
             }
 
             if (!email || !email.trim()) {
-                setError("Lütfen e-posta adresinizi girin.");
+                setError("Please enter your email address.");
                 setIsLoading(false);
                 return;
             }
 
             if (!password || password.length < 6) {
-                setError("Şifre en az 6 karakter olmalıdır.");
+                setError("Password must be at least 6 characters.");
                 setIsLoading(false);
                 return;
             }
 
             if (password !== confirmPassword) {
-                setError("Şifreler eşleşmiyor.");
+                setError("Passwords do not match.");
                 setIsLoading(false);
                 return;
             }
@@ -59,7 +59,7 @@ export function RegisterForm() {
             });
 
             if (!result.success) {
-                setError(result.error || "Kayıt olurken bir sorun oluştu.");
+                setError(result.error || "An issue occurred while signing up.");
                 setIsLoading(false);
                 return;
             }
@@ -74,7 +74,7 @@ export function RegisterForm() {
             }
         } catch (err) {
             console.error("Registration error:", err);
-            setError(err instanceof Error ? err.message : "Kayıt olurken bir sorun oluştu.");
+            setError(err instanceof Error ? err.message : "An issue occurred while signing up.");
         }
         setIsLoading(false);
     };
@@ -91,14 +91,14 @@ export function RegisterForm() {
             if (error) throw error;
         } catch (err: any) {
             console.error("Github login error:", err);
-            setError("GitHub ile kayıt olunurken bir sorun oluştu.");
+            setError("An issue occurred while signing up with GitHub.");
         }
     };
 
     if (success) {
         return (
             <Reveal>
-                <div className="w-full max-w-md mx-auto relative px-4">
+                <div className="w-full mx-auto relative px-4" style={{ width: "680px", maxWidth: "95vw" }}>
                     <GradientBorder animate borderWidth={1}>
                         <div className="bg-slate-900/95 backdrop-blur-xl p-8 rounded-2xl relative overflow-hidden min-h-[400px] flex flex-col items-center justify-center text-center">
                             <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6 border border-green-500/20">
@@ -111,25 +111,25 @@ export function RegisterForm() {
                                 </motion.div>
                             </div>
                             <h2 className="text-2xl font-bold text-white mb-2">
-                                {needsEmailConfirmation ? "E-posta Onayı Gerekli" : "Hoş Geldiniz!"}
+                                {needsEmailConfirmation ? "Email Confirmation Required" : "Welcome!"}
                             </h2>
                             <p className="text-slate-400 mb-8 italic">
                                 {needsEmailConfirmation ? (
                                     <>
-                                        Hesabınız başarıyla oluşturuldu! <br />
-                                        E-posta adresinize gönderilen onay linkine tıklayarak hesabınızı aktifleştirin. <br />
-                                        <span className="text-xs text-slate-500 mt-2 block">E-postanızı kontrol etmeyi unutmayın!</span>
+                                        Your account has been created successfully! <br />
+                                        Activate your account by clicking the confirmation link sent to your email. <br />
+                                        <span className="text-xs text-slate-500 mt-2 block">Don't forget to check your inbox!</span>
                                     </>
                                 ) : (
                                     <>
-                                        Hesabınız başarıyla oluşturuldu. <br />
-                                        Dünyanın en yetenekli topluluğuna ilk adımını attın.
+                                        Your account has been created successfully. <br />
+                                        You just took your first step into one of the most talented communities.
                                     </>
                                 )}
                             </p>
                             <Link href={needsEmailConfirmation ? "/login" : "/dashboard"} className="w-full">
                                 <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-11">
-                                    {needsEmailConfirmation ? "Giriş Sayfasına Git" : "Dashboard'a Git"}
+                                    {needsEmailConfirmation ? "Go to Login" : "Go to Dashboard"}
                                 </Button>
                             </Link>
                         </div>
@@ -141,10 +141,10 @@ export function RegisterForm() {
 
     return (
         <Reveal>
-            <div className="w-full max-w-md mx-auto relative px-4">
+            <div className="w-full mx-auto relative px-4" style={{ width: "680px", maxWidth: "95vw" }}>
                 <Link href="/" className="absolute -top-12 left-4 text-slate-500 hover:text-white flex items-center gap-2 transition-colors group">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-                    <span>Geri Dön</span>
+                    <span>Go Back</span>
                 </Link>
 
                 <GradientBorder animate borderWidth={1}>
@@ -192,8 +192,8 @@ export function RegisterForm() {
                             </motion.div>
 
                             <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Aramıza Katılın</h1>
-                                <p className="text-slate-400 text-sm">Geleceği birlikte inşa etmek için kayıt olun</p>
+                                <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Join Us</h1>
+                                <p className="text-slate-400 text-sm">Sign up to build the future together</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="w-full space-y-4">
@@ -208,12 +208,12 @@ export function RegisterForm() {
                                 )}
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Ad Soyad</label>
+                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Full Name</label>
                                     <div className="relative group">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <Input
                                             type="text"
-                                            placeholder="Adınız Soyadınız"
+                                            placeholder="Your full name"
                                             className="pl-10 bg-slate-950/50 border-slate-800 text-slate-200 focus:border-blue-500/50 focus:ring-blue-500/10 h-11"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
@@ -223,12 +223,12 @@ export function RegisterForm() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">E-posta</label>
+                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Email</label>
                                     <div className="relative group">
                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <Input
                                             type="email"
-                                            placeholder="adiniz@ornek.com"
+                                            placeholder="yourname@example.com"
                                             className="pl-10 bg-slate-950/50 border-slate-800 text-slate-200 focus:border-blue-500/50 focus:ring-blue-500/10 h-11"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -238,7 +238,7 @@ export function RegisterForm() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Şifre</label>
+                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Password</label>
                                     <div className="relative group">
                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <Input
@@ -253,7 +253,7 @@ export function RegisterForm() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Şifre Tekrar</label>
+                                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Confirm Password</label>
                                     <div className="relative group">
                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
                                         <Input
@@ -280,7 +280,7 @@ export function RegisterForm() {
                                                 <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                                             </div>
                                         ) : (
-                                            "Kayıt Ol"
+                                            "Sign Up"
                                         )}
                                     </Button>
 
@@ -289,7 +289,7 @@ export function RegisterForm() {
                                             <span className="w-full border-t border-slate-800" />
                                         </div>
                                         <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
-                                            <span className="bg-[#0f172a] px-3 text-slate-500">Veya sosyal hesapla</span>
+                                            <span className="bg-[#0f172a] px-3 text-slate-500">Or continue with social login</span>
                                         </div>
                                     </div>
 
@@ -300,15 +300,15 @@ export function RegisterForm() {
                                         onClick={handleGithubLogin}
                                     >
                                         <Github className="mr-2 h-4 w-4" />
-                                        GitHub ile Kayıt Ol
+                                        Continue with GitHub
                                     </Button>
                                 </div>
                             </form>
 
                             <div className="mt-8 text-center text-sm text-slate-500">
-                                Zaten hesabınız var mı?{" "}
+                                Already have an account?{" "}
                                 <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium hover:underline decoration-blue-500/30 underline-offset-4 transition-colors">
-                                    Giriş Yapın
+                                    Sign in
                                 </Link>
                             </div>
                         </div>

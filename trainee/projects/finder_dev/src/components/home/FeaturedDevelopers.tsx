@@ -79,7 +79,7 @@ function DeveloperCard({ developer, index }: { developer: FeaturedDeveloper; ind
                                 ⭐
                             </motion.span>
                             <span className="text-white font-bold text-lg">{developer.rating.toFixed(1)}</span>
-                            <span className="text-white/40 text-sm">({developer.projects} proje)</span>
+                            <span className="text-white/40 text-sm">({developer.projects} projects)</span>
                         </motion.div>
 
                         {/* Skills */}
@@ -108,7 +108,7 @@ function DeveloperCard({ developer, index }: { developer: FeaturedDeveloper; ind
                         {/* Button */}
                         <motion.div whileHover={{}} whileTap={{}}>
                             <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 w-full">
-                                Profili Gör →
+                                View Profile →
                             </Button>
                         </motion.div>
                     </div>
@@ -173,13 +173,13 @@ export function FeaturedDevelopers() {
                             className="px-5 py-2.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-mono inline-block mb-6"
                             whileHover={{}}
                         >
-                            ⭐ En İyi Geliştiriciler
+                            ⭐ Top Developers
                         </motion.span>
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            <NeonText color="purple">Yetenekli Geliştiriciler</NeonText>
+                            <NeonText color="purple">Talented Developers</NeonText>
                         </h2>
                         <p className="text-white/60 max-w-2xl mx-auto text-lg">
-                            Topluluğumuzun en aktif ve başarılı geliştiricileriyle tanışın.
+                            Meet the most active and successful developers in our community.
                         </p>
                     </motion.div>
                 </Reveal>
@@ -195,8 +195,8 @@ export function FeaturedDevelopers() {
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <p className="text-white/50 text-lg">Henüz geliştirici bulunmuyor.</p>
-                        <p className="text-white/30 text-sm mt-2">İlk geliştirici olun!</p>
+                        <p className="text-white/50 text-lg">No developers yet.</p>
+                        <p className="text-white/30 text-sm mt-2">Be the first developer!</p>
                     </div>
                 )}
 
@@ -209,7 +209,7 @@ export function FeaturedDevelopers() {
                         >
                             <Button asChild variant="outline" size="lg" className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 px-8 py-6 text-lg">
                                 <Link href="/developers">
-                                    Tüm Geliştiricileri Gör
+                                    View All Developers
                                     <motion.span
                                         className="ml-2"
                                         animate={{ x: [0, 5, 0] }}

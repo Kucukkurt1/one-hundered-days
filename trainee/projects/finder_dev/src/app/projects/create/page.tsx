@@ -15,6 +15,22 @@ import {
 } from "@/components/ui/card";
 import { MultiSelectPopover } from "@/components/ui/multi-select-popover";
 import { motion } from "framer-motion";
+import { Check, ChevronDown } from "lucide-react";
+
+type ProjectStatus =
+  | "idea"
+  | "in development"
+  | "MVP Ready"
+  | "Recruiting"
+  | "Refactoring";
+
+const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
+  { value: "idea", label: "Idea" },
+  { value: "in development", label: "In development" },
+  { value: "MVP Ready", label: "MVP Ready" },
+  { value: "Recruiting", label: "Recruiting" },
+  { value: "Refactoring", label: "Refactoring" },
+];
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -23,11 +39,16 @@ export default function CreateProjectPage() {
   const [description, setDescription] = useState("");
   const [selectedTech, setSelectedTech] = useState<string[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [status, setStatus] = useState<ProjectStatus>("idea");
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [githubUrl, setGithubUrl] = useState("");
   const [liveUrl, setLiveUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openSidebar, setOpenSidebar] = useState<"technologies" | "roles" | null>(null);
+
+  const selectedStatusLabel =
+    STATUS_OPTIONS.find((option) => option.value === status)?.label ?? status;
 
   // Options for multi-select - All technologies
   const allTechOptions = [
@@ -106,7 +127,7 @@ export default function CreateProjectPage() {
     setError(null);
 
     if (!title || !description) {
-      setError("Title ve description zorunlu.");
+      setError("Title and description are required.");
       return;
     }
 
@@ -116,7 +137,9 @@ export default function CreateProjectPage() {
         title,
         description,
         shortDescription: description.length > 10 ? description.slice(0, 200) : undefined,
-        status: "idea",
+        status,
+        techStackText: selectedTech.join(", "),
+        lookingFor: selectedRoles,
         techStack: selectedTech.length > 0
           ? selectedTech.map((t) => ({
             name: t.trim(),
@@ -155,12 +178,11 @@ export default function CreateProjectPage() {
         throw new Error(data?.message || "Failed to create project");
       }
 
-      // Başarılı ise projeler sayfasına dön
       router.push("/projects");
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Proje oluşturulurken hata oluştu."
+        err instanceof Error ? err.message : "An error occurred while creating the project."
       );
     } finally {
       setIsSubmitting(false);
@@ -175,7 +197,6 @@ export default function CreateProjectPage() {
         <main className="flex-1 transition-all duration-300">
           <div className="container py-10">
           <div className="max-w-2xl mx-auto space-y-6 relative">
-            {/* Başlık */}
             <div className="text-center space-y-2">
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500">
@@ -218,6 +239,61 @@ export default function CreateProjectPage() {
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">
+                    Status
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setStatusMenuOpen((prev) => !prev)}
+                      className="w-full px-4 py-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:border-purple-500/30 text-white text-left transition-all duration-200 flex items-center justify-between"
+                      aria-haspopup="listbox"
+                      aria-expanded={statusMenuOpen}
+                    >
+                      <span>{selectedStatusLabel}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
+                          statusMenuOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {statusMenuOpen && (
+                      <div className="absolute z-30 mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-xl shadow-purple-500/10 p-2">
+                        {STATUS_OPTIONS.map((option) => {
+                          const selected = status === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => {
+                                setStatus(option.value);
+                                setStatusMenuOpen(false);
+                              }}
+                              className={`w-full px-3 py-2.5 rounded-xl text-left text-sm flex items-center justify-between transition-all duration-150 ${
+                                selected
+                                  ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-purple-500/30"
+                                  : "text-slate-300 hover:bg-white/10"
+                              }`}
+                            >
+                              <span>{option.label}</span>
+                              {selected && <Check className="h-4 w-4 text-purple-300" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {statusMenuOpen && (
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-20 cursor-default"
+                    onClick={() => setStatusMenuOpen(false)}
+                    aria-label="Close status menu"
+                  />
+                )}
                 {/* Technologies Selection */}
                 <MultiSelectPopover
                   options={allTechOptions}
@@ -274,7 +350,7 @@ export default function CreateProjectPage() {
                   >
                     <p className="font-semibold mb-1">Error creating project</p>
                     <p>{error}</p>
-                    {error.includes("kayıtlı kullanıcı yok") && (
+                    {error.toLowerCase().includes("no user") && (
                       <p className="mt-2 text-red-300">
                         You need to set up your profile first.{" "}
                         Please contact support or try logging out and back in.

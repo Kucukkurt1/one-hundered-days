@@ -55,16 +55,16 @@ export function DevelopersGrid({ searchQuery = "" }: DevelopersGridProps) {
             setLoading(true);
             setError(null);
             try {
-                console.log("[DevelopersGrid] Veri çekme başlatılıyor...");
+                console.log("[DevelopersGrid] Starting data fetch...");
                 const query: Record<string, string> = {
-                    limit: "1000", // Tüm developer'ları çek
+                    limit: "1000", // Fetch all developers
                 };
                 if (searchQuery) {
                     query.search = searchQuery;
-                    console.log("[DevelopersGrid] Arama sorgusu:", searchQuery);
+                    console.log("[DevelopersGrid] Search query:", searchQuery);
                 }
 
-                console.log("[DevelopersGrid] searchUsers çağrılıyor, query:", query);
+                console.log("[DevelopersGrid] Calling searchUsers with query:", query);
                 const result = await searchUsers(query);
                 console.log("[DevelopersGrid] searchUsers sonucu:", {
                     success: result.success,
@@ -73,32 +73,32 @@ export function DevelopersGrid({ searchQuery = "" }: DevelopersGridProps) {
                 });
 
                 if (!result.success) {
-                    console.error("[DevelopersGrid] searchUsers başarısız:", result);
-                    throw new Error("Geliştiriciler yüklenirken bir hata oluştu.");
+                    console.error("[DevelopersGrid] searchUsers failed:", result);
+                    throw new Error("An error occurred while loading developers.");
                 }
 
                 const developersData = result.data || [];
-                console.log("[DevelopersGrid] Çekilen developer sayısı:", developersData.length);
+                console.log("[DevelopersGrid] Number of developers fetched:", developersData.length);
 
                 if (!cancelled) {
                     setDevelopers(developersData);
                     if (developersData.length === 0) {
-                        console.warn("[DevelopersGrid] Hiç developer bulunamadı!");
+                        console.warn("[DevelopersGrid] No developers found!");
                     }
                 }
             } catch (err) {
-                console.error("[DevelopersGrid] Hata yakalandı:", err);
+                console.error("[DevelopersGrid] Error caught:", err);
                 if (!cancelled) {
                     const errorMessage = err instanceof Error 
                         ? err.message 
-                        : "Geliştiriciler yüklenemedi.";
+                        : "Developers could not be loaded.";
                     setError(errorMessage);
-                    console.error("[DevelopersGrid] Hata mesajı:", errorMessage);
+                    console.error("[DevelopersGrid] Error message:", errorMessage);
                 }
             } finally {
                 if (!cancelled) {
                     setLoading(false);
-                    console.log("[DevelopersGrid] Yükleme tamamlandı");
+                    console.log("[DevelopersGrid] Loading completed");
                 }
             }
         }
@@ -115,25 +115,25 @@ export function DevelopersGrid({ searchQuery = "" }: DevelopersGridProps) {
         <div className="container py-10">
             {loading && (
                 <div className="text-center py-20">
-                    <p className="text-muted-foreground text-lg">Geliştiriciler yükleniyor...</p>
+                    <p className="text-muted-foreground text-lg">Loading developers...</p>
                 </div>
             )}
             
             {error && (
                 <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-6">
-                    <p className="text-red-400 font-semibold mb-2">Hata Oluştu:</p>
+                    <p className="text-red-400 font-semibold mb-2">An Error Occurred:</p>
                     <p className="text-red-300 text-sm">{error}</p>
                     <p className="text-red-200 text-xs mt-2">
-                        Lütfen console'u kontrol edin veya sayfayı yenileyin.
+                        Please check the console or refresh the page.
                     </p>
                 </div>
             )}
 
             {!loading && developers.length === 0 && !error && (
                 <div className="text-center py-20">
-                    <p className="text-muted-foreground text-lg mb-2">Henüz geliştirici bulunamadı.</p>
+                    <p className="text-muted-foreground text-lg mb-2">No developers found yet.</p>
                     <p className="text-muted-foreground text-sm">
-                        Veritabanında kayıtlı developer bulunmuyor veya bir sorun oluşmuş olabilir.
+                        There may be no developers in the database, or something might have gone wrong.
                     </p>
                 </div>
             )}
@@ -181,7 +181,7 @@ export function DevelopersGrid({ searchQuery = "" }: DevelopersGridProps) {
                                         <div className="mt-auto w-full">
                                             <Link href={`/profile/${dev.id}`} className="w-full block">
                                                 <Button variant="outline" className="w-full border-slate-700 hover:bg-slate-800">
-                                                    Profili Gör
+                                                    View Profile
                                                 </Button>
                                             </Link>
                                         </div>
@@ -194,12 +194,12 @@ export function DevelopersGrid({ searchQuery = "" }: DevelopersGridProps) {
                 </motion.div>
             )}
 
-            {/* Debug bilgisi - sadece development'ta göster */}
+            {/* Debug info - show only in development */}
             {process.env.NODE_ENV === 'development' && !loading && (
                 <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
                     <p className="text-xs text-slate-400">
-                        Debug: {developers.length} developer yüklendi. 
-                        {error && ` Hata: ${error}`}
+                        Debug: {developers.length} developers loaded. 
+                        {error && ` Error: ${error}`}
                     </p>
                 </div>
             )}

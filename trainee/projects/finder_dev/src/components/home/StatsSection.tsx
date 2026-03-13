@@ -20,10 +20,10 @@ function formatNumber(num: number): string {
 }
 
 const defaultStats = [
-    { key: 'developers', label: "Geliştirici", icon: "👨‍💻", color: "from-blue-500 to-cyan-500" },
-    { key: 'projects', label: "Proje", icon: "🚀", color: "from-purple-500 to-pink-500" },
-    { key: 'collaborations', label: "İşbirliği", icon: "🤝", color: "from-green-500 to-emerald-500" },
-    { key: 'satisfaction', label: "Memnuniyet", icon: "⭐", color: "from-orange-500 to-amber-500", suffix: "%" },
+    { key: 'developers', label: "Developers", icon: "👨‍💻", color: "from-blue-500 to-cyan-500" },
+    { key: 'projects', label: "Projects", icon: "🚀", color: "from-purple-500 to-pink-500" },
+    { key: 'collaborations', label: "Collaborations", icon: "🤝", color: "from-green-500 to-emerald-500" },
+    { key: 'satisfaction', label: "Satisfaction", icon: "⭐", color: "from-orange-500 to-amber-500", suffix: "%" },
 ];
 
 function AnimatedCounter({ value, delay, color }: { value: string; delay: number; color: string }) {
@@ -179,13 +179,13 @@ export function StatsSection() {
                             className="px-5 py-2.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-mono inline-block mb-6"
                             whileHover={{ scale: 1.05 }}
                         >
-                            📊 Rakamlarla FinderDev
+                            📊 FinderDev in Numbers
                         </motion.span>
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            <NeonText color="blue">Büyüyen Topluluğumuz</NeonText>
+                            <NeonText color="blue">Our Growing Community</NeonText>
                         </h2>
                         <p className="text-white/60 max-w-2xl mx-auto text-lg">
-                            FinderDev ile binlerce geliştirici bir araya geliyor ve harika projeler üretiyor.
+                            Thousands of developers connect on FinderDev and build amazing projects together.
                         </p>
                     </motion.div>
                 </Reveal>

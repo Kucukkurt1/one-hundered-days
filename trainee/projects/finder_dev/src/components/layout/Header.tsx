@@ -252,7 +252,7 @@ export function Header() {
                     className="hover:bg-red-500/10 text-slate-300 hover:text-red-400 border border-transparent hover:border-red-500/30"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Çıkış Yap</span>
+                    <span className="hidden sm:inline">Log Out</span>
                   </Button>
                 </>
               ) : (
@@ -260,13 +260,13 @@ export function Header() {
                   {/* Login and Register Buttons - Only show when NOT logged in */}
                   <Link href="/login">
                     <Button variant="ghost" size="sm" className="hover:bg-slate-800/50">
-                      Giriş Yap
+                      Log In
                     </Button>
                   </Link>
 
                   <Link href="/register">
                     <Button size="sm" className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20">
-                      Kayıt Ol
+                      Sign Up
                     </Button>
                   </Link>
                 </>

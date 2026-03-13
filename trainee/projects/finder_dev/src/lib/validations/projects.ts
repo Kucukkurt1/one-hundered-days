@@ -3,6 +3,11 @@ import { z } from "zod";
 // Project status enum
 export const projectStatusSchema = z.enum([
   "idea",
+  "in development",
+  "MVP Ready",
+  "Recruiting",
+  "Refactoring",
+  // Legacy statuses kept for backward compatibility
   "planning",
   "recruiting",
   "in_progress",

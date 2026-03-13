@@ -1,11 +1,18 @@
-export type StatusFilter = "all" | "idea" | "planning" | "in_progress" | "completed";
+export type StatusFilter =
+  | "all"
+  | "idea"
+  | "in development"
+  | "MVP Ready"
+  | "Recruiting"
+  | "Refactoring";
 
 export const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "idea", label: "Idea" },
-  { value: "planning", label: "Planning" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
+  { value: "in development", label: "In development" },
+  { value: "MVP Ready", label: "MVP Ready" },
+  { value: "Recruiting", label: "Recruiting" },
+  { value: "Refactoring", label: "Refactoring" },
 ];
 
 const TECH_OPTIONS = [

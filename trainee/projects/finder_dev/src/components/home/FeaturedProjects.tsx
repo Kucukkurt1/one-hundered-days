@@ -86,7 +86,7 @@ function ProjectCard({ project, index }: { project: FeaturedProject; index: numb
                             {/* Progress bar */}
                             <div className="mb-4">
                                 <div className="flex justify-between text-xs text-white/50 mb-1">
-                                    <span>İlerleme</span>
+                                    <span>Progress</span>
                                     <span>{project.progress}%</span>
                                 </div>
                                 <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -104,11 +104,11 @@ function ProjectCard({ project, index }: { project: FeaturedProject; index: numb
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center text-white/50 text-sm">
                                     <span className="mr-1">👥</span>
-                                    <span>{project.members} üye</span>
+                                    <span>{project.members} members</span>
                                 </div>
                                 <motion.div whileHover={{ x: 5 }}>
                                     <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
-                                        Detaylar →
+                                        View Details →
                                     </Button>
                                 </motion.div>
                             </div>
@@ -180,13 +180,13 @@ export function FeaturedProjects() {
                             className="px-5 py-2.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-mono inline-block mb-6"
                             whileHover={{}}
                         >
-                            🔥 Öne Çıkan Projeler
+                            🔥 Featured Projects
                         </motion.span>
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                            <NeonText color="cyan">Heyecan Verici Projeler</NeonText>
+                            <NeonText color="cyan">Exciting Projects</NeonText>
                         </h2>
                         <p className="text-white/60 max-w-2xl mx-auto text-lg">
-                            Topluluğumuzun üzerinde çalıştığı en popüler ve yenilikçi projeler.
+                            The most popular and innovative projects our community is currently building.
                         </p>
                     </motion.div>
                 </Reveal>
@@ -202,8 +202,8 @@ export function FeaturedProjects() {
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <p className="text-white/50 text-lg">Henüz proje bulunmuyor.</p>
-                        <p className="text-white/30 text-sm mt-2">İlk projeyi ekleyen siz olun!</p>
+                        <p className="text-white/50 text-lg">No projects yet.</p>
+                        <p className="text-white/30 text-sm mt-2">Be the first to add a project!</p>
                     </div>
                 )}
 
@@ -216,7 +216,7 @@ export function FeaturedProjects() {
                         >
                             <Button asChild variant="outline" size="lg" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 px-8 py-6 text-lg">
                                 <Link href="/projects">
-                                    Tüm Projeleri Gör
+                                    View All Projects
                                     <motion.span
                                         className="ml-2"
                                         animate={{ x: [0, 5, 0] }}
