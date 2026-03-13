@@ -1,0 +1,51 @@
+{
+  "@@locale": "en",
+  "localLanguageCode": "en_US",
+  "appTitle": "Tiny Plates",
+  "home": "Home",
+  "homeTitle": "Tiny Plates",
+  "settings": "Settings",
+  "save": "Save",
+  "cancel": "Cancel",
+  "loading": "Loading...",
+  "error": "Error",
+  "retry": "Retry",
+  "onboardingSkip": "Skip",
+  "onboardingPrevious": "Previous",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "onboardingNoPages": "No onboarding pages",
+  "onboardingLoadFailed": "Load failed",
+  "diary": "Diary",
+
+  "profileSetupTitle": "Child Profile",
+  "profileStep": "Step",
+  "profileNext": "Next",
+  "profilePrevious": "Previous",
+  "profileSave": "Save Profile",
+  "profileContinue": "Continue",
+
+  "profileAgeTitle": "How old is your child?",
+  "profileAgeDescription": "Enter your child's age in months so we can personalise their nutrition plan.",
+  "profileAgeLabel": "Age (months)",
+  "profileAgeHint": "e.g. 8",
+  "profileAgeNote": "Enter a value between 0 and 36 months.",
+
+  "profileAllergiesTitle": "Any allergies?",
+  "profileAllergiesDescription": "Select all allergens that apply. We will filter out unsafe foods automatically.",
+
+  "profileChewingTitle": "Chewing level",
+  "profileTextureTitle": "Texture tolerance",
+
+  "profileSpecialTitle": "Special conditions & sensory",
+  "profileIsPrematureLabel": "My child was born premature",
+  "profileDietaryNeedsLabel": "Special dietary needs",
+  "profileDietaryNeedsHint": "e.g. vegan, halal, kosher…",
+  "profileFoodIntolerancesLabel": "Food intolerances",
+  "profileFoodIntolerancesHint": "e.g. lactose, gluten…",
+  "profileSensoryTitle": "Sensory preferences",
+
+  "profileSavedTitle": "Profile saved!",
+  "profileSavedSubtitle": "Here is a personalised tip based on your child's texture level.",
+  "profileGuidanceTitle": "AI Texture Tip"
+}
