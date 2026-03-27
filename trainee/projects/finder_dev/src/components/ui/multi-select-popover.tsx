@@ -16,6 +16,7 @@ interface MultiSelectPopoverProps {
   onChange: (selected: string[]) => void;
   placeholder?: string;
   label?: string;
+  required?: boolean;
   className?: string;
   onSidebarOpen?: () => void;
   onSidebarClose?: () => void;
@@ -29,6 +30,7 @@ export function MultiSelectPopover({
   onChange,
   placeholder = "Select options...",
   label,
+  required = false,
   className,
   onSidebarOpen,
   onSidebarClose,
@@ -151,6 +153,7 @@ export function MultiSelectPopover({
       {label && (
         <label className="text-sm font-medium text-slate-300 mb-2 block">
           {label}
+          {required && <span className="text-red-300"> *</span>}
         </label>
       )}
       

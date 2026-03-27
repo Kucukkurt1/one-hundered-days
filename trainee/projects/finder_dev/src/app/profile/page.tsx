@@ -57,6 +57,7 @@ export default async function ProfilePage() {
 
   const profile = {
     username: profileRow?.username || fallbackUsername,
+    identity: user?.email || profileRow?.username || fallbackUsername,
     full_name: profileRow?.full_name || fallbackFullName,
     avatar_url:
       profileRow?.avatar_url ||
@@ -99,7 +100,7 @@ export default async function ProfilePage() {
                     {profile.full_name || profile.username}
                   </span>
                 </h1>
-                <p className="text-muted-foreground text-lg">@{profile.username}</p>
+                <p className="text-muted-foreground text-lg">{profile.identity}</p>
               </div>
 
               <div className="max-w-3xl mx-auto mt-12">
@@ -132,7 +133,7 @@ export default async function ProfilePage() {
                     <h2 className="text-2xl font-semibold text-white mb-2 mt-4">
                       {profile.full_name || profile.username}
                     </h2>
-                    <p className="text-muted-foreground">@{profile.username}</p>
+                    <p className="text-muted-foreground">{profile.identity}</p>
 
                     {(profile.github_url || profile.linkedin_url) && (
                       <div className="flex gap-4 mt-4">

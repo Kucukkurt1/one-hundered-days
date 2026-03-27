@@ -22,3 +22,24 @@ This file stores feature ideas that are confirmed but intentionally postponed.
 - Owner should be able to accept or reject requests from a dedicated management view.
 - Decisions should be visible to applicants (status updates).
 
+## Team Role Permissions (Leader / Co-Leader)
+
+- Projects should support team authority levels such as Leader and Co-Leader.
+- Co-Leader should be able to review and manage incoming join requests.
+- Permission matrix should define which actions each role can perform (member management, updates, approvals).
+- Future: expose role assignment UI inside project management settings.
+
+## Achievement / Badge System
+
+- Add a public achievement model visible on profile pages.
+- Track core signals such as profile completion, completed projects, and project abandonment patterns.
+- Surface badge counts and achievement history in user profile and developer discovery contexts.
+- Future: include moderation-safe negative trust indicators with clear criteria.
+
+## Project Type Classification
+
+- Add a `project_type` field to project creation and detail views.
+- Initial options: `Web Project`, `Mobile App`, `Game`, `AI Tool`, `API/Backend`, `Desktop App`, `Other`.
+- Include project type in browse/search filtering and card metadata.
+- Keep schema extensible for future multi-type tagging.
+

@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, ExternalLink, Github, Users, Hourglass } from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink, FileText, Github, Users, Hourglass } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProjectById } from "@/app/actions/projects";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ProjectRequestButton } from "@/components/projects/ProjectRequestButton";
+import { OwnerRequestsPanel } from "@/components/projects/OwnerRequestsPanel";
 
 type ProjectDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -74,43 +77,152 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
   const project = result.data as Record<string, any>;
   const githubUrl = project.github_url || project.repo_url;
   const liveUrl = project.live_url || project.demo_url;
+  const documentationUrl = project.documentation_url || project.document_url || null;
   const techStack = normalizeTextArray(project.tech_stack);
   const lookingFor = normalizeTextArray(project.looking_for).map((role) => role.replace(/_/g, " "));
   const owner = project.owner || null;
   const ownerName = owner?.full_name || owner?.username || "Unknown user";
   const ownerUsername = owner?.username ? `@${owner.username}` : "";
   const ownerAvatar = owner?.avatar_url;
-  const teamCapacity = 10;
+  const rawTeamCapacity = Number(project.team_capacity);
+  const teamCapacity = Number.isFinite(rawTeamCapacity) && rawTeamCapacity > 0 ? rawTeamCapacity : null;
+  const deadlineLabel = project.deadline ? formatDate(project.deadline) : getMockDeadline(project.created_at);
+  const estimatedStartLabel = project.estimated_start_date
+    ? formatDate(project.estimated_start_date)
+    : formatDate(project.created_at);
+  const authClient = (await createSupabaseServerClient()) as any;
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+  const currentUserId = user?.id ?? null;
+  const isOwner = currentUserId ? project.owner_id === currentUserId : false;
+  let initialRequestStatus: "pending" | "accepted" | "rejected" | null = null;
+  let ownerPendingRequests: Array<{
+    id: string;
+    requester_profile_id: string;
+    requester_name: string;
+    requester_label: string;
+    message: string | null;
+    created_at: string;
+  }> = [];
+  if (currentUserId && !isOwner) {
+    const { data: myRequest } = await authClient
+      .from("project_requests")
+      .select("status")
+      .eq("project_id", id)
+      .eq("requester_id", currentUserId)
+      .maybeSingle();
+    const status = myRequest?.status;
+    if (status === "pending" || status === "accepted" || status === "rejected") {
+      initialRequestStatus = status;
+    }
+  }
+  if (currentUserId && isOwner) {
+    const { data: pendingRows } = await authClient
+      .from("project_requests")
+      .select("id, requester_id, message, created_at")
+      .eq("project_id", id)
+      .eq("status", "pending")
+      .order("created_at", { ascending: true });
+
+    const requesterIds = Array.from(
+      new Set((pendingRows || []).map((row: any) => row.requester_id).filter(Boolean))
+    );
+    let profilesById = new Map<
+      string,
+      { full_name: string | null; username: string | null; user_tag: string | null }
+    >();
+
+    if (requesterIds.length > 0) {
+      const { data: requesterProfiles } = await authClient
+        .from("profiles")
+        .select("id, full_name, username, user_tag")
+        .in("id", requesterIds);
+
+      profilesById = new Map(
+        (requesterProfiles || []).map((profile: any) => [
+          profile.id,
+          { full_name: profile.full_name, username: profile.username, user_tag: profile.user_tag },
+        ])
+      );
+    }
+
+    ownerPendingRequests = (pendingRows || []).map((row: any) => {
+      const profile = profilesById.get(row.requester_id);
+      const displayName =
+        profile?.full_name || profile?.username || profile?.user_tag || "Unknown user";
+      const label = profile?.user_tag
+        ? `#${profile.user_tag}`
+        : profile?.username
+        ? `@${profile.username}`
+        : "Profile";
+      return {
+        id: row.id,
+        requester_profile_id: row.requester_id,
+        requester_name: displayName,
+        requester_label: label,
+        message: row.message || null,
+        created_at: row.created_at,
+      };
+    });
+  }
+
+  const { data: acceptedMemberRows } = await authClient
+    .from("project_members")
+    .select("user_id, role_title")
+    .eq("project_id", id)
+    .eq("status", "accepted");
+
+  const acceptedMemberUserIds = Array.from(
+    new Set(
+      (acceptedMemberRows || [])
+        .map((row: any) => row.user_id)
+        .filter((memberUserId: string | null) => Boolean(memberUserId) && memberUserId !== project.owner_id)
+    )
+  );
+
+  let acceptedProfilesById = new Map<
+    string,
+    { id: string; full_name: string | null; username: string | null; avatar_url: string | null }
+  >();
+  if (acceptedMemberUserIds.length > 0) {
+    const { data: acceptedProfiles } = await authClient
+      .from("profiles")
+      .select("id, full_name, username, avatar_url")
+      .in("id", acceptedMemberUserIds);
+    acceptedProfilesById = new Map(
+      (acceptedProfiles || []).map((profile: any) => [profile.id, profile])
+    );
+  }
+
   const teamMembers = [
     {
       id: owner?.id || "owner",
+      profileId: owner?.id || null,
       name: ownerName,
       role: ownerUsername ? `Owner • ${ownerUsername}` : "Owner",
       avatar:
         ownerAvatar ||
         `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(ownerName)}&eyes=default&eyebrows=default&mouth=smile&accessoriesProbability=0&facialHairProbability=0&skinColor=f2d3b1`,
     },
-    {
-      id: "mock-member-1",
-      name: "Elif Demir",
-      role: "Frontend Developer",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ElifDemir",
-    },
-    {
-      id: "mock-member-2",
-      name: "Can Yildiz",
-      role: "Backend Developer",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=CanYildiz&eyes=default&eyebrows=default&mouth=smile&accessoriesProbability=0&facialHairProbability=0&skinColor=f2d3b1",
-    },
-    {
-      id: "mock-member-3",
-      name: "Zeynep Arslan",
-      role: "UI/UX Designer",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ZeynepArslan",
-    },
+    ...(acceptedMemberRows || [])
+      .filter((row: any) => Boolean(row.user_id) && row.user_id !== project.owner_id)
+      .map((row: any) => {
+        const profile = acceptedProfilesById.get(row.user_id);
+        const displayName = profile?.full_name || profile?.username || "Team Member";
+        return {
+          id: row.user_id as string,
+          profileId: row.user_id as string,
+          name: displayName,
+          role: row.role_title || "Contributor",
+          avatar:
+            profile?.avatar_url ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}`,
+        };
+      }),
   ];
+
   const teamCurrent = teamMembers.length;
-  const deadlineLabel = project.deadline ? formatDate(project.deadline) : getMockDeadline(project.created_at);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
@@ -129,6 +241,24 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                   Back to Projects
                 </Button>
               </Link>
+              <div className="flex items-center gap-3">
+                {!currentUserId ? (
+                  <Link href="/login">
+                    <Button
+                      variant="outline"
+                      className="rounded-full bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-violet-400/40"
+                    >
+                      Login to Request
+                    </Button>
+                  </Link>
+                ) : isOwner ? (
+                  <Badge className="bg-violet-500/15 text-violet-200 border-violet-400/30 hover:bg-violet-500/15 cursor-default">
+                    You are project owner
+                  </Badge>
+                ) : (
+                  <ProjectRequestButton projectId={id} initialStatus={initialRequestStatus} />
+                )}
+              </div>
             </div>
 
             <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-xl p-8">
@@ -153,7 +283,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                   {project.description || "No description has been shared for this project."}
                 </p>
 
-                {(githubUrl || liveUrl) && (
+                {(githubUrl || liveUrl || documentationUrl) && (
                   <div className="mt-8 flex flex-wrap gap-3">
                     {githubUrl && (
                       <a href={githubUrl} target="_blank" rel="noopener noreferrer">
@@ -168,6 +298,14 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                         <Button className="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white">
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Live Demo
+                        </Button>
+                      </a>
+                    )}
+                    {documentationUrl && (
+                      <a href={documentationUrl} target="_blank" rel="noopener noreferrer">
+                        <Button className="rounded-full bg-slate-900/70 hover:bg-slate-800 text-white border border-slate-700">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Documentation
                         </Button>
                       </a>
                     )}
@@ -229,14 +367,30 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                           <Users className="h-4 w-4 text-blue-300" />
                           Team Capacity
                         </span>
-                        <span className="text-white font-semibold">{teamCurrent}/{teamCapacity}</span>
+                        <span className="text-white font-semibold">
+                          {teamCapacity ? `${teamCurrent}/${teamCapacity}` : `${teamCurrent} members`}
+                        </span>
                       </div>
-                      <div className="mt-2 h-2 rounded-full bg-slate-800">
-                        <div
-                          className="h-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-                          style={{ width: `${Math.min((teamCurrent / teamCapacity) * 100, 100)}%` }}
-                        />
-                      </div>
+                      {teamCapacity ? (
+                        <div className="mt-2 h-2 rounded-full bg-slate-800">
+                          <div
+                            className="h-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                            style={{ width: `${Math.min((teamCurrent / teamCapacity) * 100, 100)}%` }}
+                          />
+                        </div>
+                      ) : (
+                        <p className="mt-2 text-xs text-slate-500">
+                          Team capacity not configured yet.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="rounded-lg border border-slate-700/70 bg-slate-900/60 p-3">
+                      <p className="inline-flex items-center gap-2 text-sm text-slate-300">
+                        <Calendar className="h-4 w-4 text-cyan-300" />
+                        Estimated Start
+                      </p>
+                      <p className="text-white font-semibold mt-1">{estimatedStartLabel}</p>
                     </div>
 
                     <div className="rounded-lg border border-slate-700/70 bg-slate-900/60 p-3">
@@ -245,9 +399,11 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                         Deadline
                       </p>
                       <p className="text-white font-semibold mt-1">{deadlineLabel}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Mock value for now; Supabase field will be connected later.
-                      </p>
+                      {!project.deadline && (
+                        <p className="text-xs text-slate-500 mt-1">
+                          Mock value for now; Supabase field will be connected later.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -268,16 +424,31 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                           className="h-11 w-11 rounded-full object-cover border border-white/20"
                         />
                         <div className="min-w-0">
-                          <p className="text-white font-medium truncate">{member.name}</p>
+                          {member.profileId ? (
+                            <Link href={`/profile/${member.profileId}`} className="text-white font-medium truncate hover:text-violet-200 transition-colors block">
+                              {member.name}
+                            </Link>
+                          ) : (
+                            <p className="text-white font-medium truncate">{member.name}</p>
+                          )}
                           <p className="text-slate-400 text-sm truncate">{member.role}</p>
                         </div>
                       </div>
                     ))}
-                    <p className="text-xs text-slate-500">
-                      Mock members and avatars for now. Will be connected to Supabase team data and profile photos.
-                    </p>
+                    {teamMembers.length <= 1 && (
+                      <p className="text-xs text-slate-500">
+                        No accepted team members yet.
+                      </p>
+                    )}
                   </div>
                 </div>
+
+                {isOwner && (
+                  <OwnerRequestsPanel
+                    projectId={id}
+                    initialRequests={ownerPendingRequests}
+                  />
+                )}
               </aside>
             </section>
           </div>

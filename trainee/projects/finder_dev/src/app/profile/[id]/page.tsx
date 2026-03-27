@@ -178,7 +178,7 @@ export default async function UserProfileDetailPage({
                   </span>
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  @{profileIdentity}
+                  {profileIdentity}
                   {profile.user_tag ? ` • #${String(profile.user_tag)}` : ""}
                 </p>
               </div>
@@ -200,7 +200,7 @@ export default async function UserProfileDetailPage({
                           )}
                         </div>
                         <h2 className="text-2xl font-semibold text-white mb-2">{displayName}</h2>
-                        <p className="text-slate-400">@{profileIdentity}</p>
+                        <p className="text-slate-400">{profileIdentity}</p>
 
                         {(profile.github_url || profile.website_url || profile.linkedin_url) && (
                           <div className="flex flex-wrap justify-center gap-3 mt-5">

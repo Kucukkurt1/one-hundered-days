@@ -22,7 +22,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: "projects",
-    label: "Projects",
+    label: "Browse",
     icon: <LayoutGrid className="h-5 w-5" />,
     href: "/projects",
   },

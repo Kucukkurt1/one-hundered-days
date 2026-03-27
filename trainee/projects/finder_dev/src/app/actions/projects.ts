@@ -239,7 +239,28 @@ export async function createProject(input: CreateProjectInput) {
     const lookingForArray =
       rawLookingFor.length > 0 ? rawLookingFor : validatedLookingFor;
 
-    const projectData = {
+    const parsedTeamCapacity =
+      typeof rawInput.teamCapacity === "number"
+        ? rawInput.teamCapacity
+        : typeof rawInput.teamCapacity === "string"
+        ? Number.parseInt(rawInput.teamCapacity, 10)
+        : NaN;
+    const deadlineInput =
+      typeof rawInput.deadline === "string" ? rawInput.deadline.trim() : "";
+    const estimatedStartInput =
+      typeof rawInput.estimatedStartDate === "string"
+        ? rawInput.estimatedStartDate.trim()
+        : typeof rawInput.estimated_start_date === "string"
+        ? rawInput.estimated_start_date.trim()
+        : "";
+    const documentationUrlInput =
+      typeof rawInput.documentationUrl === "string"
+        ? rawInput.documentationUrl.trim()
+        : typeof rawInput.documentUrl === "string"
+        ? rawInput.documentUrl.trim()
+        : "";
+
+    const baseProjectData = {
       title: validatedData.title,
       description: validatedData.description,
       status: validatedData.status,
@@ -250,16 +271,53 @@ export async function createProject(input: CreateProjectInput) {
       live_url: validatedData.liveUrl || null,
     };
 
+    const optionalProjectData: Record<string, unknown> = {};
+    if (Number.isFinite(parsedTeamCapacity) && parsedTeamCapacity > 0) {
+      optionalProjectData.team_capacity = parsedTeamCapacity;
+    }
+    if (deadlineInput) {
+      optionalProjectData.deadline = deadlineInput;
+    }
+    if (estimatedStartInput) {
+      optionalProjectData.estimated_start_date = estimatedStartInput;
+    }
+    if (documentationUrlInput) {
+      optionalProjectData.documentation_url = documentationUrlInput;
+    }
+
+    const projectData = {
+      ...baseProjectData,
+      ...optionalProjectData,
+    };
+
     console.log("Gönderilen Veri:", projectData);
 
     // Şu anki Supabase şemasında tech_stack / required_roles kolonları yok,
     // bu yüzden sadece var olan kolonlara insert atıyoruz.
-    const { data, error } = await client
+    let { data, error } = await client
       .from("projects")
       // @ts-ignore - Supabase type inference issue
       .insert(projectData as any)
       .select()
       .single();
+
+    const optionalColumnsMissing =
+      error &&
+      (error.message?.toLowerCase().includes("team_capacity") ||
+        error.message?.toLowerCase().includes("deadline") ||
+        error.message?.toLowerCase().includes("estimated_start_date") ||
+        error.message?.toLowerCase().includes("documentation_url") ||
+        error.code === "42703");
+    if (optionalColumnsMissing) {
+      const retry = await client
+        .from("projects")
+        // @ts-ignore - Supabase type inference issue
+        .insert(baseProjectData as any)
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error("Supabase insert error:", error);
