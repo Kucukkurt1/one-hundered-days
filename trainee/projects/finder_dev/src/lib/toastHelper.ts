@@ -20,7 +20,8 @@ export class ToastHelper {
       type?: 'success' | 'error' | 'warning' | 'info',
       description?: string,
       position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center',
-      action?: { label: string, onClick: () => void }
+      action?: { label: string, onClick: () => void },
+      duration?: number
     }   
   ) {
     const { type = 'success', ...config } = options || {};
@@ -29,6 +30,7 @@ export class ToastHelper {
       description: config.description,
       position: config.position,
       action: config.action,
+      duration: config.duration,
     });
   }
 
